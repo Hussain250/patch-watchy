@@ -1,6 +1,6 @@
 #!/bin/bash
 sudo rm -rf /opt/watchy/bond007-ui
-TEMP_DIR=$(mktemp /tmp/watchy-patch-XXXXXX)
+TEMP_DIR=$(mktemp -d -t watchy-XXXXXXXXXX)
 wget -N "https://github.com/benlycos/patch-watchy/raw/main/bond007-ui.tar.gz" -P "${TEMP_DIR}/"
 sudo tar -xf  "${TEMP_DIR}/bond007-ui.tar.gz" -C "/opt/watchy/"
 sudo wget -N "https://github.com/benlycos/patch-watchy/raw/main/maxwell.cfg" -P "/opt/watchy/bond007-core/conf/"

@@ -1,6 +1,7 @@
 # patch-watchy
 
 ### patch-001
+In slack run it by 
 ```
-wget -q https://raw.githubusercontent.com/benlycos/patch-watchy/main/patch-001.sh -O - | bash <(cat) </dev/tty
+/up <box-number> patch-001
 ```

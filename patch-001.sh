@@ -9,4 +9,4 @@ SRL_NO=$(cat /opt/watchy/bond007-id/serial.number)
 SLACK_URL=$(wget -q https://raw.githubusercontent.com/benlycos/automation-tests/main/tests/slack_url.gpg -O - | openssl aes-256-cbc -d -a -pass pass:somepassword)
 curl -X POST --data-urlencode "payload={\"text\": \"Patch patch-001 addition for ${SRL_NO} done. Device is going to get restarted\"}" ${SLACK_URL} >> "${TEMP_DIR}/run.log"
 rm -rf ${TEMP_DIR}
-#sudo reboot
+sudo reboot

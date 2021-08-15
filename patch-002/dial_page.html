@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:background="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<title>Benlycos</title>
+<meta http-equiv="content-type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="">
+
+<!--
+		#AEB404 -> Yellow -> Available state
+		#04B404 -> green  -> connection success
+		#B40404 -> red    -> connection unsuccess
+		#585858 -> grey   -> device unavailable
+	-->
+
+<!-- Le styles -->
+
+<link href="../static/bootstrap-3.0.3/css/bootstrap.min.css"
+	rel="stylesheet">
+<link href="../static/bootstrap-3.0.3/css/bootstrap-theme.min.css"
+	rel="stylesheet">
+
+<link href="../static/watchy/css/watchy_main.css" rel="stylesheet">
+<link href="../static/watchy/css/dongle.css" rel="stylesheet">
+</head>
+<body
+	onload="pollGetDeviceState(); getDeviceState(); getLastUpdated(); getVersion(); getSerialNumber();
+    pollGetCurrSpeedData(); getCurrSpeedData(); update_notification(); pollUpdateNotifier(); ">
+
+	<div class="wrap" id="wrap" style="height: 100%;">
+		<div class="container"
+			style="margin: 0 auto -90px; background-color: #2E2E2E;">
+			<!-- header -->
+
+			<!--information bar -->
+
+			<div class="page-header" id="welcome">
+				<div class="masthead">
+					<img src="/static/watchy/img/zifilink_logo.png" class="img-rounded" alt="Watchy">
+
+					<div class="btn-group" align="right" style="margin-top: 0%; float: right">
+
+                        <p class="text-muted credit" align="left" style="color: white">
+                            <b>
+                                <img src="/static/watchy/img/mobile.png"/>+91 9590-11-40-40 <br>
+                                <img src="/static/watchy/img/email.png"/> support@zifilink.com
+                            </b>
+                        </p>
+                        <div class="btn" align="center" style="margin-top:-8px; margin-left: -20px; float: left">
+                            <a class="btn-primary btn" style="float: left" href="#" onclick="speed_test()"> Speed Test </a>
+                        </div>
+
+						<!--drop down menu buttom-->
+
+						<a id="watchy-menu" class="btn dropdown-toggle btn-danger"
+						   style="float: right; border: 1px solid transparent" data-toggle="dropdown"
+						   href="#"> Menu
+							<span class="caret"></span>
+						</a>
+
+						<!--menu options -->
+
+						<ul class="dropdown-menu pull-right">
+
+							<div class="btn btn-dongle" style="width: 100%; float: center"
+								; onclick="configureHotspot()">Configure Hotspot</div>
+							<br />
+
+							<div class="btn btn-dongle" style="width: 100%; float: center"
+								; onclick="log_dump()">Log Dump</div>
+							<br />
+
+							<div class="btn btn-dongle" style="width: 100%; float: center"
+								; onclick="check_updates()">
+								<input type="hidden" id="m_updates" value="" />Check Updates</div>
+							<br />
+
+							<div class="btn btn-dongle" style="width: 100%; float: center"
+								; onclick="restart()">Restart</div>
+							<br />
+
+							<div class="btn btn-dongle" style="width: 100%; float: center"
+								; onclick="shutDown()">Shutdown</div>
+							<br />
+
+							<div class="btn btn-dongle" style="width: 100%; float: center	"
+								; onclick="uploadFileToInstall()">Manual Update</div>
+							<br />
+
+							<!--<div class="btn btn-dongle" style="width: 100%; float: center	"-->
+								<!--; onclick="configureFirewall()">Configure Firewall</div>-->
+							<!--<br />-->
+
+						</ul>
+					</div>
+				</div>
+			</div>
+
+
+			<!-- new dashboard layout -->
+			<div style="height: 250%">
+				<div class="row">
+
+				</div>
+			</div>
+			<!-- end of new dashboard layout -->
+
+
+			<!--drop down menu buttom-->
+
+					<div class="dropdown" style="float:right;">
+						<a class="btn dropdown-toggle btn-danger"
+						   data-toggle="dropdown"
+						   href="#">Servers
+							<span class="caret"></span>
+						</a>
+
+
+						<!--menu options -->
+
+						<ul class="dropdown-menu">
+							       <!-- {"id": "blr01", "location": "Bangalore", "domain": "maxblr01.watchy.in"},-->
+
+							{% for items in maxwell_servers %}
+							<div class="btn btn-dongle changeServerButton" style="width: 100%; float: center"
+								; data-toggle="modal" data-id="{{ items.location }},{{ items.id }}" data-target="#myModal1"> {{ items.location }} </div>
+							{% endfor %}
+						<!--	<div class="btn btn-dongle changeServerButton" style="width: 100%; float: center"
+								; data-toggle="modal" data-id="Bangalore,blr01" data-target="#myModal">Bangalore</div>
+
+							<div class="btn btn-dongle changeServerButton" style="width: 100%; float: center"
+								; data-toggle="modal" data-id="Mumbai,bom01" data-target="#myModal">Mumbai</div>
+
+							<div class="btn btn-dongle changeServerButton" style="width: 100%; float: center"
+								; data-toggle="modal" data-id="Delhi,del01" data-target="#myModal">Delhi</div>
+
+						-->
+						</ul>
+					</div>
+
+
+					<!-- Modal -->
+					<div id="myModal1" class="modal fade" role="dialog">
+					  <div class="modal-dialog">
+					
+					    <!-- Modal content-->
+					    <div class="modal-content">
+					      <div class="modal-header">
+					        <button type="button" class="close" data-dismiss="modal">&times;</button>
+					        <h4 class="modal-title">Server change</h4>
+					      </div>
+					      <div class="modal-body">
+					        <p id="changeServerText">Device would be connected connected to </p>
+					      </div>
+					      <div class="modal-footer">
+					        <button type="button" class="btn btn-primary" data-dismiss="modal" id="serverSelectionYes">Yes</button>
+					        <button type="button" class="btn btn-danger" data-dismiss="modal" id="serverSelectionNo">No</button>
+					      </div>
+					    </div>
+					
+					  </div>
+					</div>
+
+
+
+			<!-- dashboard area -->
+
+			<div style="height: 100%">
+				<div class="row">
+					<div class="col-xs-12 col-sm-12">
+						<div class="row">
+							<div class="col-xs-12 col-sm-9 col-sm-offset-2">
+								<div class="row">
+									<div style="border-radius: 5px;">
+										<!-- Dongle row -->
+										<div class="row" style="margin: 10px 0px 10px 20px;">
+											<p id="getServer" style="color: #FFF;margin-left: 10px;"></p>
+											<input type="hidden" id="selected_dongle" value="" />
+											<input type="hidden" id="update_state" value="" />
+											<!-- Hidden values for setting the selected operator for respective state -->
+											{% for item in dongle_name %} <a href="#"
+												name="{{ item.id }}" id="{{ item.id }}"> <input
+												type="hidden" id="selected_operator" value="" /> <input
+												type="hidden" id="dongle_state" value="" /> <input
+												type="hidden" id="error_msg" value="" /><input
+												type="hidden" id="auto_dial" value="" />
+												<div class="col-xs-1 col sm-1 state" id="div_{{ item.id }}"
+													style="border: 1px solid black; width: 60px; margin-left: 10px;"
+													rel="popover">
+													<p style="font-weight:bold; color:white; font-size:18px;text-align:center; margin-top:15px;">{{
+														item.display_name }}</p>
+													<div>
+                                                        <img id="operator_img" align="center"
+														 src="/static/watchy/img/loader.gif"
+														 style="display: none; position: absolute;margin-left: 2%;"></img>
+													    <img id="load_gif" align="center"
+														 src="/static/watchy/img/loader.gif"
+														 style="pointer-events: none; display: none; position: absolute;margin-left: 2%;"></img>
+                                                        <img id="ipconflict_img" align="center"
+														 src="/static/watchy/img/error.png"
+														 style="display: none; position: absolute;margin-left: 2%;"></img>
+                                                    </div>
+                                                    <div>
+                                                        <img id="signalStrength"
+														    style="position: absolute;display: none; margin-left: 2%; margin-top: 70%"></img>
+                                                        <p id="signalStrength_text" style="position: absolute; margin-left: 3px; vertical-align:sub; color:white; font-size:15px;text-align:center;font-weight:bold;margin-top:70%; ">
+                                                        </p>
+                                                    </div>
+													<p id="rat" style="position: absolute; top: 80%;color: white; font-size:15px; text-align:center; width:50%;font-weight:bold; margin-left:2px; "></p>
+													<button  id="static_settings" class="btn btn-link" onclick="configureStaticIP(this)" style="pointer-events: auto; display:none; width:50%; background-color:transparent; margin-left: 50%; float: left">
+                                                        <input  id="static_settings_img" type="image" src="/static/watchy/img/settings.png" style="display: none; align-self: center; float: right "/>
+													</button>
+                                                                                                        <p>
+												</div>
+
+											</a> {% endfor %}
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- individual dongle speed, aggregated speed and data usage -->
+
+			<div style="height: 100%">
+				<div class="row">
+					<div class="col-sm-10 col-xs-12 col-sm-offset-2">
+						<div class="row" style="margin-right:10px; margin-left:10px;color:#FFF; font-size:12px">
+							Individual connection speed
+						</div>
+						<div class="row" style="margin-right:10px; margin-left:10px;">
+							<div class="col-sm-1 col-xs-1" style="margin-left:5px;padding:0;width:60px">
+								<p id="dongle0_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle1_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle2_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle3_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle4_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle5_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle6_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle7_current_speed" style="color:white; font-size:9px;text-align: center">
+									▲0b/s <br>▼0b/s
+								</p>
+							</div>
+						</div>
+
+						<div class="row" style="margin-right:10px; margin-left:10px;color:#FFF; font-size:12px">
+							Individual data consumed
+						</div>
+
+						<div class="row" style="margin-right:10px; margin-left:10px;">
+							<div class="col-sm-1 col-xs-1" style="margin-left:5px;padding:0;width:60px">
+								<p id="dongle0_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle1_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle2_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle3_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle4_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle5_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle6_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+							<div class="col-sm-1 col-xs-1" style="margin-left:10px;padding:0;width:60px">
+								<p id="dongle7_current_data" style="color:white; font-size:9px;text-align: center">
+									▲0B <br>▼0B
+								</p>
+							</div>
+						</div>
+
+
+
+						<div class="row" style="margin-left:10px">
+							<div class="col-sm-6 col-xs-6">
+								<p style="font-size: 15px; color: white" id="current_speed_new"></p>
+							</div>
+							<div class="col-sm-6 col-xs-6">
+								<p style="font-size: 15px; color: white" id="data_used_new"></p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+
+
+
+
+			<!--dhcp information -->
+
+			<div style="height: 100%">
+				<div class="row">
+					<div class="col-xs-12 col-sm-12" style="margin-top: 50px">
+						<div class="row">
+							<div class="col-xs-12 col-sm-7  col-sm-offset-2">
+								<div class="panel-group" id="accordion">
+									<div class="panel panel-default">
+										<div class="panel-heading">
+											<h4 class="panel-title">
+												<a data-toggle="collapse" data-parent="#accordion"
+													href="#logcollapse" onclick="getCurrLog()"> More information </a>
+												<span class="glyphicon glyphicon-refresh" style="float:right" onclick="getCurrLog()"></span>
+											</h4>
+										</div>
+										<div id="logcollapse" class="panel-collapse collapse"
+											style="overflow-y: scroll; height: 350px">
+											<div style="height: 350px">
+												<div class="panel-body" id="log_window"></div>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+            <div class="row">
+                <div class="col-xs-12 col-sm-7  col-sm-offset-2">
+                    <div style="width: 100%; margin-top: 40%; display: None" class="alert alert-danger" id="ipconflict_alert">
+                        <strong>IPCONFLICT!</strong> Please change ip of the devices which are marked as conflict <img src="/static/watchy/img/error.png" style="position: absolute;margin-left: -2px;">
+                    </div>
+                </div>
+            </div>
+
+		</div> <!-- end of container-->
+
+		<!--dongle state legends-->
+		<div style="width: 100%;" id="legends">
+			<div class="container">
+				<div class="row" style="font-size: 10px;">
+					<div class="col-sm-3 col-xs-3">
+						<div class="row">
+							<div class="col-sm-3 col-xs-3">
+								<fieldset id="field_set"
+									style="width: 5px; border: 2px solid gray; background-color: gray">
+								</fieldset>
+							</div>
+							<div class="col-sm-8 col-xs-8" style="color: white">No Device Found</div>
+						</div>
+					</div>
+					<div class="col-sm-3 col-xs-3">
+						<div class="row">
+							<div class="col-sm-3 col-xs-3">
+								<fieldset id="field_set"
+									style="width: 5px; border: 2px solid yellow; background-color: yellow">
+								</fieldset>
+							</div>
+							<div class="col-sm-8 col-xs-8" style="color: white">Device Ready</div>
+						</div>
+					</div>
+					<div class="col-sm-3 col-xs-3">
+						<div class="row">
+							<div class="col-sm-3 col-xs-3">
+								<fieldset id="field_set"
+									style="width: 5px; border: 2px solid green; background-color: green">
+								</fieldset>
+							</div>
+							<div class="col-sm-8 col-xs-8" style="color: white">Device Connected</div>
+						</div>
+					</div>
+					<div class="col-sm-3 col-xs-3">
+						<div class="row">
+							<div class="col-sm-3 col-xs-3">
+								<fieldset id="field_set"
+									style="width: 5px; border: 2px solid red; background-color: red">
+								</fieldset>
+							</div>
+							<div class="col-sm-8 col-xs-8" style="color: white">Network Connecting Error</div>
+						</div>
+					</div>
+                    <div style="color:white;font-size:10px;margin-left: 2%; margin-bottom: 0.5%; margin-top: 1%">
+                        <p><b>N/A</b><i>:Signal or Balance or Operator information unavailable</i></p>
+                    </div>
+				</div>
+			</div>
+		</div>
+		<!--end of dongle state legends-->
+		<!--show version, last updated, serial number-->
+		<div id="footer">
+ 			<div class="container">
+				<div class="row" style="font-size: 13px">
+  					<div class="col-xs-6 col-md-4">
+						<p id="serial_number" class="text-muted credit" style="color: white; margin-top: 1%; margin-bottom: 1%"></p>
+					</div>
+  					<div class="col-xs-6 col-md-4">
+						<p id="artifacts_version" class="text-muted credit" style="color: white; margin-top: 1%; margin-bottom: 1%"></p>
+					</div>
+  					<div class="col-xs-6 col-md-4">
+						<p id="last_updated" class="text-muted credit" style="color: white; margin-top: 1%; margin-bottom: 1%"></p>
+					</div>
+                    <div class="container">
+                        <p class="text-muted credit" style="font-size: 10px;">© Powered by Benlycos</p>
+                    </div>
+				</div>
+			</div>
+		</div>
+		<!--end of footer-->
+	</div>
+	<!--end of wrap	-->
+
+	<!-- Retry popover -->
+	<div id="Retry-error-details" style="display: none;">
+		<div>
+			<p id="error_code">
+				<b> Error in Connecting </b>
+			</p>
+			<div style="float: right; display: inline-block; font-size: 12px">
+				<button id="close_id"
+						style="margin-top: 10px; margin-bottom: 10px; display: inline-block;"
+						class="btn btn-xs btn-danger"
+						onclick="destroy_this($('#selected_dongle').val(), event);">
+						Close
+				</button>
+			</div>
+		</div>
+	</div>
+	<!-- /Retry popover -->
+
+	<!--pop up modal-->
+	<div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+		aria-labelledby="myModalLabel" aria-hidden="true">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header" id="modal_header">
+					<h4 class="modal-title">
+                       <button type="button" data-dismiss="modal" class="close" aria-label="Close"><span aria-hidden="false">&times;</span></button>
+						<p id="modal_title">Box Disconnected!</p>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<p id="modal_body">Box disconnected, try reconnecting...</p>
+				</div>
+				<div class="modal-footer" id="modal_footer">
+					<button type="button" class="btn btn-danger" data-dismiss="modal" style="display:none">Close</button>
+				</div>
+			</div>
+			<!-- /.modal-content -->
+		</div>
+		<!-- /.modal-dialog -->
+	</div>
+	<!-- /.modal -->
+
+	<div id="topbar">Update Available
+	<a onClick="update_modal()"; href="#">download</a> <a onCliCK="update_notification_hide()";href="#">hide</a></div>
+
+
+	<!-- Javascript
+	================================================== -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<script src="/static/jquery/js/jquery-1.9.1.js" type="text/javascript"></script>
+	<script type="text/javascript" src="/static/jquery/js/jquery-ui.js"></script>
+	<!-- collapsible-->
+	<script type="text/javascript"
+		src="/static/collapsible/js/jquery.collapsible.min.js"></script>
+	<script type="text/javascript"
+		src="/static/collapsible/js/jquery.scrollToElement.js"></script>
+	<script type="text/javascript" src="/static/collapsible/js/main.js"></script>
+	<!-- end of collapsible-->
+	<script type="text/javascript"
+		src="/static/bootstrap-3.0.3/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/static/jquery/js/jquery.cookie.js"></script>
+	<script src="/static/watchy/js/bond007_home.js" type="text/javascript"></script>
+	<script src="/static/watchy/js/menu.js" type="text/javascript"></script>
+	<script src="/static/jquery-input-ip-address-control/jquery.input-ip-address-control-1.0.min.js"></script>
+	<script type="text/javascript">
+	$(function() {
+	    $('#first').collapsible('accordion-open', {
+		contentOpen : 1
+	    });
+	    $('.title').scrollToElement('body');
+	});
+
+
+    	</script>
+
+	<script type="text/javascript">
+	function changeServer(server) {
+	$.ajax({
+			type : "POST",
+			url : "/changeServer",
+			contentType : 'application/json',
+			data : JSON.stringify({
+		    		'action' : 'changeServer',
+				'server':  server
+			}),
+			dataType : 'json',
+			success : function(data) {
+				console.log(data)
+			},
+			error : function(err) {
+				console.error(err)
+		    		console.log("Not able to change the server");
+			}
+	    	})
+	}
+	// window.onload = function () {
+	    function getServer() {
+	    $.ajax({
+	    		type : "POST",
+	    		url : "/getServer",
+	    		contentType : 'application/json',
+	    		data : JSON.stringify({
+	    	    		'action' : 'getServer'
+	    		}),
+	    		dataType : 'json',
+	    		success : function(data) {
+	    			$('#getServer').html( "Connected to " + data.server + " server.")
+	    		},
+	    		error : function(err) {
+	    			console.error(err)
+	    	    		console.log("Not able to get the server");
+	    		}
+	        	})
+	    }
+	    setInterval(function(){ 
+
+	    	getServer();
+
+	    	 }, 1000);
+	//    }
+
+	$(document).on("click", ".changeServerButton", function () {
+		$('#changeServerText').html("Would you like to change the server to " + $(this).attr('data-id').split(',')[0] + " ?")
+		$('#serverSelectionYes').attr('data-id', $(this).data('id'))
+		$('#serverSelectionNo').attr('data-id', $(this).data('id'))
+	});
+
+	$(document).on("click", "#serverSelectionYes", function () {
+		changeServer($(this).attr("data-id").split(",")[1])
+	});
+
+        
+        function getAllNetSpeed() {
+            return new Promise(function(resolve, reject) {
+	        $.ajax({
+	        	type : "POST",
+	        	url : "/connection_manager/get_individual_speeds",
+	        	contentType : 'application/json',
+	        	dataType : 'json',
+	        	success : function(data) {
+	        		console.log(data)
+                                for (var each_iface of Object.keys(data)) {
+                                        if(each_iface == "all") {
+						$("#current_speed_new").html("▲" + data[each_iface]["upload"] + " ▼ " + data[each_iface]["download"])
+						$("#data_used_new").html("▲" + data[each_iface]["consumed_upload"] + " ▼ " + data[each_iface]["consumed_download"])
+					} else {
+						$("#dongle" + each_iface.match(/\d+$/)[0] + "_current_speed").html( "▲" + data[each_iface]["upload"] + "<br>" + "▼" + data[each_iface]["download"])
+						$("#dongle" + each_iface.match(/\d+$/)[0] + "_current_data").html( "▲" + data[each_iface]["consumed_upload"] + "<br>" + "▼" + data[each_iface]["consumed_download"])
+					}
+					
+                                }
+                                resolve(getAllNetSpeed())
+	        	},
+	        	error : function(err) {
+	        		console.log(err)
+                                resolve(getAllNetSpeed())
+	        	}
+	        })
+
+	    })
+	}
+        getAllNetSpeed()
+        
+
+    	</script>
+
+        <style>
+	#watchy-menu {
+		border: 1px solid transparent !important
+	}
+						   
+	.btn-group>.btn:last-child:not(:first-child), .btn-group>.dropdown-toggle:not(:first-child) {
+    		border-bottom-left-radius: 4px; 
+    		border-top-left-radius: 4px; 
+	}
+        </style>
+
+</body>
+</html>

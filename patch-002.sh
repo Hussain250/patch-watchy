@@ -10,6 +10,7 @@ then
     curl -X POST --data-urlencode "payload={\"text\": \"Patch patch-001 already exits for ${SRL_NO}. No patch-001 required\"}" ${SLACK_URL} >> "${TEMP_DIR}/run.log"
     rm -rf ${TEMP_DIR}
 elif [ -e /opt/watchy/bond007-patches/patch-001 ]
+then
     sudo rm /opt/watchy/bond007-ui/render.py
     wget -qcN "https://raw.githubusercontent.com/benlycos/patch-watchy/main/patch-002/render.py" -O "/opt/watchy/bond007-ui/render.py" > "${TEMP_DIR}/run.log"
     wget -qcN "https://raw.githubusercontent.com/benlycos/patch-watchy/main/patch-002/net_speed.py" -O "/opt/watchy/bond007-ui/net_speed.py" >> "${TEMP_DIR}/run.log"
